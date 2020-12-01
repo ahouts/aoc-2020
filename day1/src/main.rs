@@ -52,9 +52,9 @@ fn part2() -> Result<u32, Box<dyn Error>> {
 
     for n1 in relevant_numbers.iter().copied() {
         let relevant_slice = le_slice(relevant_numbers.as_slice(), 2020 - n1);
-        for n2 in relevant_slice.into_iter().copied() {
+        for (i, n2) in relevant_slice.into_iter().copied().enumerate() {
             let n3 = 2020 - n1 - n2;
-            if relevant_numbers.binary_search(&n3).is_ok() {
+            if relevant_slice[(i + 1)..].binary_search(&n3).is_ok() {
                 return Ok(n1 * n2 * n3);
             }
         }
