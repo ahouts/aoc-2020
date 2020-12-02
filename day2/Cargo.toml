@@ -1,0 +1,9 @@
+[package]
+name = "day2"
+version = "0.1.0"
+authors = ["ahouts"]
+edition = "2018"
+
+[dependencies]
+simple-error = "0.2"
+itertools = "0.9"
