@@ -1,0 +1,8 @@
+[package]
+name = "day4"
+version = "0.1.0"
+authors = ["andrewhouts <andrewhouts@wealthfront.com>"]
+edition = "2018"
+
+[dependencies]
+simple-error = "0.2"
