@@ -1,0 +1,10 @@
+[package]
+name = "day7"
+version = "0.1.0"
+authors = ["andrewhouts <andrewhouts@wealthfront.com>"]
+edition = "2018"
+
+[dependencies]
+regex = "1"
+once_cell = "1"
+simple-error = "0.2"
