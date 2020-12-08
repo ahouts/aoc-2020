@@ -87,10 +87,11 @@ impl Console {
     fn step(&mut self) -> bool {
         let i = self.mem[self.cpu.pc];
         self.cpu.execute(i);
-        self.cpu.pc as usize == self.mem.ram.len()
+        self.cpu.pc == self.mem.ram.len() as i32
     }
 
     fn load(&mut self, mem: Memory) {
+        assert!(mem.ram.len() < Arch::MAX as usize && (mem.ram.len() as Arch) < Arch::MAX);
         self.mem = mem;
     }
 
