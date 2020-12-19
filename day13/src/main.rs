@@ -1,6 +1,8 @@
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::sync::{Arc, Mutex};
 
 fn parse() -> Result<(u64, Vec<(u64, u64)>), Box<dyn Error>> {
     let mut lines = BufReader::new(File::open("input.txt")?).lines();
@@ -29,19 +31,52 @@ fn part1(start: u64, busses: &[u64]) -> u64 {
     bus * (departure_time - start)
 }
 
-fn part2(busses: &[(u64, u64)]) -> u64 {
-    let mut current_ts = 0;
-    let z = busses.first().unwrap().1;
-    loop {
-        if busses
-            .iter()
-            .copied()
-            .all(|(i, b)| ((b - current_ts % b) % b) == i % b)
-        {
-            return current_ts;
+const THREADS: usize = 11;
+const CHECK_FREQ: usize = 100000000;
+
+fn part2(mut busses: Vec<(u64, u64)>) -> u64 {
+    let ans = Arc::new(Mutex::new(None));
+    busses.sort_by_key(|(_, b)| *b);
+    busses.reverse();
+    let (zi, z) = busses.first().copied().unwrap();
+    (0..THREADS).into_par_iter().for_each({
+        let ans = ans.clone();
+        move |i| {
+            let mut current_ts = (z - zi) + z * i as u64;
+            let mut iter_count = 0;
+            loop {
+                if busses
+                    .iter()
+                    .copied()
+                    .all(|(i, b)| ((b - current_ts % b) % b) == i % b)
+                {
+                    let mut g = ans.lock().unwrap();
+                    match *g {
+                        None => *g = Some(current_ts),
+                        Some(n) if current_ts < n => *g = Some(current_ts),
+                        _ => (),
+                    }
+                    return;
+                }
+                current_ts += z * THREADS as u64;
+                if current_ts > (u64::MAX >> 1) {
+                    panic!();
+                }
+                iter_count += 1;
+                if iter_count >= CHECK_FREQ {
+                    let g = ans.lock().unwrap();
+                    if let Some(n) = *g {
+                        if current_ts > n {
+                            return;
+                        }
+                    }
+                    iter_count = 0;
+                }
+            }
         }
-        current_ts += z;
-    }
+    });
+    let g = ans.lock().unwrap();
+    g.unwrap()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -60,7 +95,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         )
     );
 
-    println!("part 2: {}", part2(busses.as_slice()));
+    println!("part 2: {}", part2(busses));
 
     Ok(())
 }
