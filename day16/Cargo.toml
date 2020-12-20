@@ -1,0 +1,9 @@
+[package]
+name = "day16"
+version = "0.1.0"
+authors = ["Andrew Houts <ahouts4@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+simple-error = "0.2"
+varisat = "0.2"
